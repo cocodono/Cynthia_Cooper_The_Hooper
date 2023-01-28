@@ -1,0 +1,52 @@
+---
+title: "Assignment1_Data 607"
+author: "Coco Donovan"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+In FiveThirtyEight's article titled "It’s Time To Give Basketball’s Other GOAT Her Due," Neil Paine gives a statistics-based take on who is the greatest WNBA player of all time. Paine concludes that Cynthia Cooper was the greatest player of all time for her league-leading statistics in multiple categories (Points per game, Win Shares, Win Shares per 40 Minutes, and Player Efficiency Rating) and her record-setting winning percentage. Paine notes that while other players have matched some of Cooper's statistics in years since Cooper has played, the WNBA was not around until Cooper was in her thirties with much of her athletic prime gone. Paine concludes that while other players may have matched Cooper's figures, Cooper's success is simply the most impressive, thus making Cooper the greatest WNBA player of all time.
+
+article = "https://fivethirtyeight.com/features/its-time-to-give-basketballs-other-goat-her-due/"
+
+
+## Code
+```{r, eval= FALSE}
+
+# installing packages
+library(readr)
+library(dplyr)
+library(ggplot2)
+
+wnba <- read.csv("https://raw.githubusercontent.com/fivethirtyeight/WNBA-stats/master/wnba-player-stats.csv")
+
+wnba_cynthia <- wnba %>%
+  filter(Player == "Cynthia Cooper") %>%
+  select(Player, Age, PER) %>%
+  rename(Name = Player)
+
+wnba_ratings_by_age <- wnba %>%
+  mutate(Name = "League Average") %>%
+  group_by(Name, Age) %>%        # grouping by age
+  summarise(PER = mean(PER)) %>% #Average PER by Age
+  filter(Age >= min(wnba_cynthia$Age) & Age <= max(wnba_cynthia$Age)) # Filter to Cynthia's age range
+
+full_data <- rbind(wnba_cynthia, wnba_ratings_by_age)
+
+PER_Chart <- ggplot() +
+  geom_point(full_data, mapping = aes(x = Age, y = PER, color = Name)) +
+  labs(title = "WNBA Player Efficiency Rating by Age", subtitle = "Cynthia Cooper compared to League Averages", x = "Age", y = "Player Efficiency Rating", color = '')
+
+PER_Chart
+```
+## Conclusion
+
+It is truly a shame that Cynthia Cooper's time in the WNBA was so short, as I can only imagine how much she would have elevated the level of play in the league. However, as Cooper's time in the league was so short, her body of work was smaller. Based on Paine's analysis, you can definitely argue that Cooper had the greatest seasons of all time, but making the greatest player of all time argument is a little more challenging. Paine mentions Cooper's age quite a bit but does so more as an interesting point. Providing an analysis of what age players tend to peak in terms of Player Efficiency Rating (PER) may allow for a more nuanced look at how impressive Cooper's play was in context. You could group the analysis by player's position for another layer of information. I think Cooper being 34 while she was putting up these crazy statistics is impressive, and I think it may help to convey that through the data (which I "started" to do in the code chunk).
